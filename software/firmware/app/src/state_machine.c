@@ -41,10 +41,30 @@ static void set_xchange_fsm_state(struct xchange_fsm_object *o, enum xchange_fsm
  * ##########################################
  */
 
+static void state_idle_entry(void *o)
+{
+	struct main_fsm_object *fsm = (struct main_fsm_object *)o;
+}
+
+static void state_idle_exit(void *o)
+{
+	struct main_fsm_object *fsm = (struct main_fsm_object *)o;
+}
+
 static void state_idle_run(void *o)
 {
 	struct main_fsm_object *fsm = (struct main_fsm_object *)o;
 	set_main_fsm_state(o, STATE_ERROR);
+}
+
+static void state_error_entry(void *o)
+{
+	struct main_fsm_object *fsm = (struct main_fsm_object *)o;
+}
+
+static void state_error_exit(void *o)
+{
+	struct main_fsm_object *fsm = (struct main_fsm_object *)o;
 }
 
 static void state_error_run(void *o)
@@ -52,7 +72,27 @@ static void state_error_run(void *o)
 	struct main_fsm_object *fsm = (struct main_fsm_object *)o;
 }
 
+static void state_filament_runout_entry(void *o)
+{
+	struct main_fsm_object *fsm = (struct main_fsm_object *)o;
+}
+
+static void state_filament_runout_exit(void *o)
+{
+	struct main_fsm_object *fsm = (struct main_fsm_object *)o;
+}
+
 static void state_filament_runout_run(void *o)
+{
+	struct main_fsm_object *fsm = (struct main_fsm_object *)o;
+}
+
+static void state_filament_exchange_entry(void *o)
+{
+	struct main_fsm_object *fsm = (struct main_fsm_object *)o;
+}
+
+static void state_filament_exchange_exit(void *o)
 {
 	struct main_fsm_object *fsm = (struct main_fsm_object *)o;
 }
@@ -68,13 +108,46 @@ static void state_filament_exchange_run(void *o)
  *
  * ##########################################
  */
+static void statex_drive_set_current_entry(void *o)
+{
+	struct xchange_fsm_object *fsm = (struct xchange_fsm_object *)o;
+}
+
+static void statex_drive_set_current_exit(void *o)
+{
+	struct xchange_fsm_object *fsm = (struct xchange_fsm_object *)o;
+}
 
 static void statex_drive_set_current_run(void *o)
 {
 	struct xchange_fsm_object *fsm = (struct xchange_fsm_object *)o;
 }
 
+static void statex_back_off_entry(void *o)
+{
+	struct xchange_fsm_object *fsm = (struct xchange_fsm_object *)o;
+	set_filament_drive_feed(fsm->filamux->drive, 50);
+}
+
+static void statex_back_off_exit(void *o)
+{
+	struct xchange_fsm_object *fsm = (struct xchange_fsm_object *)o;
+}
+
 static void statex_back_off_run(void *o)
+{
+	struct xchange_fsm_object *fsm = (struct xchange_fsm_object *)o;
+	if (!MUX_OUT()) {
+		set_xchange_fsm_state(fsm, STATEX_BACK_OFF_SLOW);
+	}
+}
+
+static void statex_back_off_slow_entry(void *o)
+{
+	struct xchange_fsm_object *fsm = (struct xchange_fsm_object *)o;
+}
+
+static void statex_back_off_slow_exit(void *o)
 {
 	struct xchange_fsm_object *fsm = (struct xchange_fsm_object *)o;
 }
@@ -84,7 +157,27 @@ static void statex_back_off_slow_run(void *o)
 	struct xchange_fsm_object *fsm = (struct xchange_fsm_object *)o;
 }
 
+static void statex_drive_set_target_entry(void *o)
+{
+	struct xchange_fsm_object *fsm = (struct xchange_fsm_object *)o;
+}
+
+static void statex_drive_set_target_exit(void *o)
+{
+	struct xchange_fsm_object *fsm = (struct xchange_fsm_object *)o;
+}
+
 static void statex_drive_set_target_run(void *o)
+{
+	struct xchange_fsm_object *fsm = (struct xchange_fsm_object *)o;
+}
+
+static void statex_feed_slow_entry(void *o)
+{
+	struct xchange_fsm_object *fsm = (struct xchange_fsm_object *)o;
+}
+
+static void statex_feed_slow_exit(void *o)
 {
 	struct xchange_fsm_object *fsm = (struct xchange_fsm_object *)o;
 }
@@ -94,7 +187,27 @@ static void statex_feed_slow_run(void *o)
 	struct xchange_fsm_object *fsm = (struct xchange_fsm_object *)o;
 }
 
+static void statex_feed_entry(void *o)
+{
+	struct xchange_fsm_object *fsm = (struct xchange_fsm_object *)o;
+}
+
+static void statex_feed_exit(void *o)
+{
+	struct xchange_fsm_object *fsm = (struct xchange_fsm_object *)o;
+}
+
 static void statex_feed_run(void *o)
+{
+	struct xchange_fsm_object *fsm = (struct xchange_fsm_object *)o;
+}
+
+static void statex_drive_reset_entry(void *o)
+{
+	struct xchange_fsm_object *fsm = (struct xchange_fsm_object *)o;
+}
+
+static void statex_drive_reset_exit(void *o)
 {
 	struct xchange_fsm_object *fsm = (struct xchange_fsm_object *)o;
 }
@@ -112,20 +225,31 @@ static void statex_drive_reset_run(void *o)
  */
 
 static const struct smf_state main_fsm_states[] = {
-	[STATE_IDLE] = SMF_CREATE_STATE(NULL, state_idle_run, NULL),
-	[STATE_ERROR] = SMF_CREATE_STATE(NULL, state_error_run, NULL),
-	[STATE_FILAMENT_RUNOUT] = SMF_CREATE_STATE(NULL, state_filament_runout_run, NULL),
-	[STATE_FILAMENT_EXCHANGE] = SMF_CREATE_STATE(NULL, state_filament_exchange_run, NULL),
+	[STATE_IDLE] = SMF_CREATE_STATE(state_idle_entry, state_idle_run, state_idle_exit),
+	[STATE_ERROR] = SMF_CREATE_STATE(state_error_entry, state_error_run, state_error_exit),
+	[STATE_FILAMENT_RUNOUT] = SMF_CREATE_STATE(
+		state_filament_runout_entry, state_filament_runout_run, state_filament_runout_exit),
+	[STATE_FILAMENT_EXCHANGE] =
+		SMF_CREATE_STATE(state_filament_exchange_entry, state_filament_exchange_run,
+				 state_filament_exchange_exit),
 };
 
 static const struct smf_state xchange_fsm_states[] = {
-	[STATEX_DRIVE_SET_CURRENT] = SMF_CREATE_STATE(NULL, statex_drive_set_current_run, NULL),
-	[STATEX_BACK_OFF] = SMF_CREATE_STATE(NULL, statex_back_off_run, NULL),
-	[STATEX_BACK_OFF_SLOW] = SMF_CREATE_STATE(NULL, statex_back_off_slow_run, NULL),
-	[STATEX_DRIVE_SET_TARGET] = SMF_CREATE_STATE(NULL, statex_drive_set_target_run, NULL),
-	[STATEX_FEED_SLOW] = SMF_CREATE_STATE(NULL, statex_feed_slow_run, NULL),
-	[STATEX_FEED] = SMF_CREATE_STATE(NULL, statex_feed_run, NULL),
-	[STATEX_DRIVE_RESET] = SMF_CREATE_STATE(NULL, statex_drive_reset_run, NULL),
+	[STATEX_DRIVE_SET_CURRENT] =
+		SMF_CREATE_STATE(statex_drive_set_current_entry, statex_drive_set_current_run,
+				 statex_drive_set_current_exit),
+	[STATEX_BACK_OFF] =
+		SMF_CREATE_STATE(statex_back_off_entry, statex_back_off_run, statex_back_off_exit),
+	[STATEX_BACK_OFF_SLOW] = SMF_CREATE_STATE(
+		statex_back_off_slow_entry, statex_back_off_slow_run, statex_back_off_slow_exit),
+	[STATEX_DRIVE_SET_TARGET] =
+		SMF_CREATE_STATE(statex_drive_set_target_entry, statex_drive_set_target_run,
+				 statex_drive_set_target_exit),
+	[STATEX_FEED_SLOW] = SMF_CREATE_STATE(statex_feed_slow_entry, statex_feed_slow_run,
+					      statex_feed_slow_exit),
+	[STATEX_FEED] = SMF_CREATE_STATE(statex_feed_entry, statex_feed_run, statex_feed_exit),
+	[STATEX_DRIVE_RESET] = SMF_CREATE_STATE(statex_drive_reset_entry, statex_drive_reset_run,
+						statex_drive_reset_exit),
 };
 
 /* ##########################################
