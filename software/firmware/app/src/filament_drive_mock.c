@@ -1,6 +1,6 @@
-
 #include "filament_drive.h"
 #include <zephyr/logging/log.h>
+#include <stdlib.h>
 LOG_MODULE_REGISTER(drive, CONFIG_APP_LOG_LEVEL);
 
 struct filament_drive {
@@ -13,6 +13,7 @@ int new_filament_drive(struct filament_drive **drive, unsigned int drive_count)
 	*drive = malloc(sizeof(struct filament_drive));
 	(*drive)->active_drive = 0;
 	(*drive)->drive_count = drive_count;
+	return 0;
 }
 
 int get_active_filament_drive(struct filament_drive *drive)
@@ -31,7 +32,7 @@ int set_active_filament_drive(struct filament_drive *drive, int drive_number)
 	return 0;
 }
 
-int set_filament_drive_feed(struct filament_drive *drive, unsigned int feed)
+int set_filament_drive_feed(struct filament_drive *drive, int feed)
 {
 	LOG_DBG("Set feed to %d", feed);
 	return 0;

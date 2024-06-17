@@ -13,7 +13,10 @@ target_sources(app
     PRIVATE 
         src/main.c
         src/filamux.c
+        src/filamux_io.c
+        src/filamux_extruder.c
+        src/filamux_serial.c
+        src/filamux_counter.c
         src/state_machine.c
-        src/filament_drive_mock.c
-        src/filament_counter_mock.c
+        src/filament_drive.c
 )

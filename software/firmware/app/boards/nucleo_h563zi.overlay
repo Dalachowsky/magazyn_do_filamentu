@@ -1,0 +1,65 @@
+
+#include <zephyr/dt-bindings/pinctrl/stm32-pinctrl.h>
+
+/ {
+    aliases {
+        filamux-serial = &lpuart1;
+    };
+
+    filamux_io: filamux_io {
+        compatible = "filamux,io";
+        mux-out-gpio = <&gpioe 3 0>;
+        mux-common-gpio = <&gpiof 8 0>;
+        channel_1 {
+            in-gpio = <&gpiof 7 0>;
+            mid-gpio = <&gpiof 9 0>;
+            out-gpio = <&gpiog 1 0>;
+        };
+        channel_2 {
+            in-gpio = <&gpiod 0 0>;
+            mid-gpio = <&gpiod 1 0>;
+            out-gpio = <&gpiog 0 0>;
+        };
+    };
+
+    filamux_extruder: filamux_extruder {
+        compatible = "filamux,extruder";
+        step-gpio = <&gpioa 0 STM32_AF1>; ///< TIM2_CH1
+        dir-gpio = <&gpioe 15 0>;
+        timer = <&counter_extruder>;
+    };
+
+    filamux_drive: filamux_drive {
+        compatible = "filamux,drive";
+        pwm = <&pwm_drive>;
+        channel_1 {
+            phase-gpio = <&gpioe 0 0>;
+            pwm-channel = <3>;
+        };
+        channel_2 {
+            phase-gpio = <&gpiod 14 0>;
+            pwm-channel = <2>;
+        };
+    };
+};
+
+&timers2 {
+    status = "okay";
+    st,prescaler = <1>;
+    counter_extruder: counter {
+        compatible = "st,stm32-counter";
+        status = "okay";
+        label = "COUNTER";
+    };
+};
+
+&timers3 {
+    status = "okay";
+    st,prescaler = <1>;
+    pwm_drive: pwm {
+        compatible = "st,stm32-pwm";
+        status = "okay";
+        pinctrl-0 = <&tim3_ch3_pb0 &tim3_ch2_pb5>;
+        pinctrl-names = "default";
+    };
+};

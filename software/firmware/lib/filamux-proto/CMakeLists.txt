@@ -1,0 +1,42 @@
+# Copyright (c) 2021, Legrand North America, LLC.
+# SPDX-License-Identifier: Apache-2.0
+
+zephyr_library()
+
+set(FILAMUX_PROTO_OUTPUT_DIR ${CMAKE_BINARY_DIR}/modules/filamux_proto)
+set(FILAMUX_PROTO_INCLUDE_DIR ${FILAMUX_PROTO_OUTPUT_DIR}/include)
+set(FILAMUX_PROTO_HEADER ${FILAMUX_PROTO_INCLUDE_DIR}/filamux_proto.h)
+file(MAKE_DIRECTORY ${FILAMUX_PROTO_OUTPUT_DIR})
+file(MAKE_DIRECTORY ${FILAMUX_PROTO_INCLUDE_DIR})
+set(FILAMUX_PROTO_SOURCES)
+set(FILAMUX_PROTO_INCLUDES)
+
+set(PROTO_FILE_NAMES)
+file(GLOB PROTO_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/proto/src/*.proto)
+foreach(FILE IN LISTS PROTO_SOURCES)
+    get_filename_component(FILE_NAME ${FILE} NAME)
+    string(REPLACE ".proto" ".pb-c.c" FILE_C ${FILE_NAME})
+    string(REPLACE ".proto" ".pb-c.h" FILE_H ${FILE_NAME})
+    list(APPEND PROTO_FILE_NAMES ${FILE_NAME})
+    list(APPEND FILAMUX_PROTO_SOURCES ${FILAMUX_PROTO_OUTPUT_DIR}/${FILE_C})
+    set(FILAMUX_PROTO_INCLUDES "${FILAMUX_PROTO_INCLUDES}\n#include <${FILAMUX_PROTO_OUTPUT_DIR}/${FILE_H}>")
+endforeach()
+
+add_custom_command(
+    OUTPUT ${FILAMUX_PROTO_SOURCES}
+    DEPENDS ${PROTO_SOURCES}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/proto/src
+    COMMAND protoc --c_out=${FILAMUX_PROTO_OUTPUT_DIR} ${PROTO_FILE_NAMES}
+)
+add_custom_target(PROTO_C
+    DEPENDS ${FILAMUX_PROTO_SOURCES}
+)
+
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/filamux_proto.h.in
+    ${FILAMUX_PROTO_HEADER}
+)
+
+zephyr_library_sources(${FILAMUX_PROTO_SOURCES} ${CMAKE_CURRENT_SOURCE_DIR}/protobuf-c/protobuf-c.c)
+zephyr_include_directories(${FILAMUX_PROTO_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+add_dependencies(${ZEPHYR_CURRENT_LIBRARY} PROTO_C)

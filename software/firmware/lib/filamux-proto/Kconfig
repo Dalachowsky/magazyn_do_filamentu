@@ -1,0 +1,7 @@
+# Copyright (c) 2021, Legrand North America, LLC.
+# SPDX-License-Identifier: Apache-2.0
+
+config FILAMUX_PROTO_LIB
+	bool "filamux-proto Support"
+	help
+	  This option enables the filamux-proto library

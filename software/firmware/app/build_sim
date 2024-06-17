@@ -1,3 +1,4 @@
 #!/bin/bash
 
-west build --board=native_sim .
+
+west build -d build_sim.d --board=native_sim .

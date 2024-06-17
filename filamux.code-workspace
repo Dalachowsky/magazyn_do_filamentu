@@ -1,0 +1,95 @@
+/* This is a test workspace that should ONLY be used under linux */
+{
+	"folders": [
+		{
+			"name": "software",
+			"path": "software"
+		},
+		{
+			"name": "root",
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.h": "c",
+			"*.toml": "toml",
+			"*.c": "c",
+		},
+		"terminal.integrated.env.windows": {
+			"BOARD_ROOT": "${workspaceFolder:software}/firmware",
+			"ZEPHYR_BASE": "${workspaceFolder:software}/zephyr"
+		},
+		"cmake.configureOnOpen": false,
+		"doxygen_runner.configuration_file_override": "${workspaceFolder}/doc/Doxyfile",
+		"git.alwaysSignOff": true,
+		"doxdocgen.generic.returnTemplate": "@retval {type} ",
+		"C_Cpp.default.compileCommands": "${workspaceFolder:software}/build/compile_commands.json",
+		"cortex-debug.pyocdPath": "${workspaceFolder:software}/.venv/bin/pyocd"
+	},
+	"extensions": {
+		"recommendations": [
+			"alefragnani.read-only-indicator",
+			"nordic-semiconductor.nrf-devicetree"
+		]
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "Flash",
+				"command": "source ${workspaceFolder:software}/.venv/bin/activate && cd ${workspaceFolder:software}/firmware/app/ && west flash",
+				"type": "shell",
+				"args": [],
+				"presentation": {
+					"reveal": "always"
+				},
+				"group": "none"
+			},
+			{
+				"label": "Build",
+				"command": "source ${workspaceFolder:software}/.venv/bin/activate && cd ${workspaceFolder:software}/firmware/app/ && ./build_h5",
+				"type": "shell",
+				"args": [],
+				"presentation": {
+					"reveal": "always"
+				},
+				"group": "build"
+			}
+		]
+	},
+	"launch": {
+		"configurations": [
+			{
+				"name": "Cortex Debug",
+				"cwd": "${workspaceFolder:software}",
+				"request": "attach",
+				"executable": "${workspaceFolder:software}/firmware/app/build/zephyr/zephyr.elf",
+				//"loadFiles": [
+				//        //"${workspaceFolder:firmware}/build/zephyr/zephyr.signed.hex",
+				//        //"${workspaceFolder:bootloader}/boot/zephyr/build/zephyr/zephyr.elf"
+				//],
+				//"symbolFiles": [
+				//    //{
+				//    //    "file": "${workspaceFolder:firmware}/build/zephyr/zephyr.elf"
+				//    //},
+				//    //{
+				//    //    "file": "${workspaceFolder:bootloader}/boot/zephyr/build/zephyr/zephyr.elf"
+				//    //}
+				//],
+				"type": "cortex-debug",
+				"runToEntryPoint": "main",
+				"servertype": "pyocd",
+				"targetId": "stm32h563vitx",
+				//"postLaunchCommands": [
+				"postAttachCommands": [
+					"monitor halt",
+					"monitor reset",
+					"monitor arm semihosting enable",
+					"load"
+				],
+				"gdbPath": "/home/kdalach/toolchains/zephyr-sdk-0.16.3/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb",
+			}
+		]
+	}
+}

@@ -7,7 +7,8 @@
 
 /* Main state machine */
 enum main_fsm_state {
-	STATE_IDLE,              ///< No operation
+	STATE_IDLE = 0,          ///< No operation
+	STATE_EXTRUDER_FEEDING,  ///< Extruder is feeding
 	STATE_ERROR,             ///< System error
 	STATE_FILAMENT_RUNOUT,   ///< Filament has run out. Waiting for refill
 	STATE_FILAMENT_EXCHANGE, ///< Exchange process in progress
@@ -16,13 +17,13 @@ enum main_fsm_state {
 
 /* Filament exchange state machine */
 enum xchange_fsm_state {
-	STATEX_DRIVE_SET_CURRENT, ///< Prepare drive to back off
-	STATEX_BACK_OFF,          ///< Back off filament from extruder
-	STATEX_BACK_OFF_SLOW,     ///< Slowly back off filament from output channel
-	STATEX_DRIVE_SET_TARGET,  ///< Prepare drive to feed new filament
-	STATEX_FEED_SLOW,         ///< Slowly feed new filament out of output channel
-	STATEX_FEED,              ///< Feed filament to extruder
-	STATEX_DRIVE_RESET,       ///< Reset drive
+	STATEX_DRIVE_SET_CURRENT = 0, ///< Prepare drive to back off
+	STATEX_BACK_OFF,              ///< Back off filament from extruder
+	STATEX_BACK_OFF_SLOW,         ///< Slowly back off filament from output channel
+	STATEX_DRIVE_SET_TARGET,      ///< Prepare drive to feed new filament
+	STATEX_FEED_SLOW,             ///< Slowly feed new filament out of output channel
+	STATEX_FEED,                  ///< Feed filament to extruder
+	STATEX_DRIVE_RESET,           ///< Reset drive
 	_STATEX_COUNT
 };
 
